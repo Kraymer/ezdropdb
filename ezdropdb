@@ -14,7 +14,7 @@ USAGE: $PROGNAME [-s signal_name] pattern
 
     $PROGNAME lists all databases that match the criteria given on the command line, prefixed by
     an identifier.
-    It then prompts you for which databases to drop by entering corresponding identifiers.   
+    It then prompts you for which databases to drop by entering corresponding identifiers.
 
     OPTIONS:
         see 'dropdb' USAGE
@@ -35,10 +35,10 @@ print_alternate()
     CTRL_REVERSE="\e[7m"
     CTRL_RESET="\e[27m"
     LINE_IDX=a
-    for ((i = 0; i < ${#ps_grep_lines[@]}; ++i)); do  
+    for ((i = 0; i < ${#ps_grep_lines[@]}; ++i)); do
         cmd=`echo ${ps_grep_lines[$i]} | cut -f 2-99 -d " " | cut -c 1-128`
-        ((i % 2 == 0)) && printf "${LINE_IDX}" 
-        ((i % 2 != 0)) && printf "${CTRL_REVERSE}${LINE_IDX}${CTRL_RESET}" 
+        ((i % 2 == 0)) && printf "${LINE_IDX}"
+        ((i % 2 != 0)) && printf "${CTRL_REVERSE}${LINE_IDX}${CTRL_RESET}"
         echo " ${cmd}"
         LINE_IDX=$(echo "$LINE_IDX" | tr "0-9a-z" "1-9a-z_")  # alpha increment
         if [ $i -eq 25 ]; then
@@ -54,16 +54,16 @@ ezdropdb() {
         if [ ! -z "$line" -a "$line" != " " ]; then
             databases+=("$line")
         fi
-    done < <( psql -tl|cut -d'|' -f 1|sed -e '/^ *$/d'|grep -e "${@: -1}" | grep -v "$0" )
+    done < <( psql $options -tl|cut -d'|' -f 1|sed -e '/^ *$/d'|grep -e "${@: -1}" | grep -v "$0" )
 
-    print_alternate "${databases[@]}"  
+    print_alternate "${databases[@]}"
     echo " "
     read -p "Drop databases: " cmd_ids
     for (( i=0; i<${#cmd_ids}; i++ )); do
         ascii_cmd_id=`printf "${cmd_ids:$i:1}" | od -A n -t d1`
         idx=`expr $ascii_cmd_id - 97`
-        dbname=`echo ${ps_grep_lines[$idx]}
-        dropdb $dbname
+        dbname=`echo ${ps_grep_lines[$idx]}`
+        dropdb $options $dbname
     done
 }
 
